@@ -1,0 +1,6 @@
+{
+  "name": "Ministério de Louvor Plena Unção",
+  "description": "Aplicativo para gerenciar músicas, letras e repertórios para o Ministério de Louvor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

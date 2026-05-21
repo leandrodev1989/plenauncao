@@ -1,50 +1,41 @@
 import { createClient } from '@supabase/supabase-js';
 import { Song, Setlist } from './types';
 
-let rawUrl = (import.meta as any).env.VITE_SUPABASE_URL || '';
-// Clean the URL for @supabase/supabase-js to prevent initialization issues
-if (rawUrl.endsWith('/rest/v1/')) {
-  rawUrl = rawUrl.substring(0, rawUrl.length - 8);
-} else if (rawUrl.endsWith('/rest/v1')) {
-  rawUrl = rawUrl.substring(0, rawUrl.length - 7);
-}
-if (rawUrl.endsWith('/')) {
-  rawUrl = rawUrl.slice(0, -1);
-}
+// 🔥 CONFIGURAÇÃO FIXA (TESTE TEMPORÁRIO)
+const rawUrl = "https://xvsspyfvdvfddhwsfgwi.supabase.co";
+const supabaseKey = "sb_publishable_qIhzqPVpVa4zaNXvDUAKVQ_SSfryeHH";
 
-const supabaseKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY || '';
+// 🔍 DEBUG
+console.log("SUPABASE URL:", rawUrl);
+console.log("SUPABASE KEY:", supabaseKey);
 
-export const isSupabaseConfigured = !!rawUrl && !!supabaseKey;
+// ✅ CLIENTE SUPABASE
+export const supabase = createClient(rawUrl, supabaseKey);
 
-export const supabase = isSupabaseConfigured 
-  ? createClient(rawUrl, supabaseKey)
-  : null;
-
-// Ensure tables 'songs' and 'setlists' are configured in Supabase.
-// Songs model maps to table 'songs'
-// Setlists model maps to table 'setlists'
+// ==========================
+// SONGS
+// ==========================
 
 export async function getSongsFromSupabase(): Promise<Song[] | null> {
-  if (!supabase) return null;
   try {
     const { data, error } = await supabase
       .from('songs')
       .select('*')
       .order('title', { ascending: true });
-    
+
     if (error) {
-      console.warn('Supabase: Erro ao carregar musicas. Verifique se a tabela "songs" existe.', error);
+      console.warn('Erro ao carregar musicas:', error);
       return null;
     }
+
     return data as Song[];
   } catch (err) {
-    console.error('Supabase getSongsFromSupabase exception:', err);
+    console.error('Exception getSongs:', err);
     return null;
   }
 }
 
 export async function saveSongToSupabase(song: Song): Promise<boolean> {
-  if (!supabase) return false;
   try {
     const { error } = await supabase
       .from('songs')
@@ -56,58 +47,64 @@ export async function saveSongToSupabase(song: Song): Promise<boolean> {
         lyrics: song.lyrics,
         link: song.link
       });
-    
+
     if (error) {
-      console.error('Supabase saveSongToSupabase error:', error);
+      console.error('Erro ao salvar musica:', error);
       return false;
     }
+
+    console.log("✅ Música salva com sucesso");
     return true;
+
   } catch (err) {
-    console.error('Supabase exception saving song:', err);
+    console.error('Exception saving song:', err);
     return false;
   }
 }
 
 export async function deleteSongFromSupabase(id: string): Promise<boolean> {
-  if (!supabase) return false;
   try {
     const { error } = await supabase
       .from('songs')
       .delete()
       .eq('id', id);
-    
+
     if (error) {
-      console.error('Supabase deleteSongFromSupabase error:', error);
+      console.error('Erro ao deletar musica:', error);
       return false;
     }
+
     return true;
   } catch (err) {
-    console.error('Supabase exception deleting song:', err);
+    console.error('Exception deleting song:', err);
     return false;
   }
 }
 
+// ==========================
+// SETLISTS
+// ==========================
+
 export async function getSetlistsFromSupabase(): Promise<Setlist[] | null> {
-  if (!supabase) return null;
   try {
     const { data, error } = await supabase
       .from('setlists')
       .select('*')
       .order('date', { ascending: false });
-    
+
     if (error) {
-      console.warn('Supabase: Erro ao carregar repertorios. Verifique se a tabela "setlists" existe.', error);
+      console.warn('Erro ao carregar setlists:', error);
       return null;
     }
+
     return data as Setlist[];
   } catch (err) {
-    console.error('Supabase getSetlistsFromSupabase exception:', err);
+    console.error('Exception getSetlists:', err);
     return null;
   }
 }
 
 export async function saveSetlistToSupabase(setlist: Setlist): Promise<boolean> {
-  if (!supabase) return false;
   try {
     const { error } = await supabase
       .from('setlists')
@@ -117,33 +114,36 @@ export async function saveSetlistToSupabase(setlist: Setlist): Promise<boolean> 
         date: setlist.date,
         items: setlist.items
       });
-    
+
     if (error) {
-      console.error('Supabase saveSetlistToSupabase error:', error);
+      console.error('Erro ao salvar setlist:', error);
       return false;
     }
+
+    console.log("✅ Setlist salva com sucesso");
     return true;
+
   } catch (err) {
-    console.error('Supabase exception saving setlist:', err);
+    console.error('Exception saving setlist:', err);
     return false;
   }
 }
 
 export async function deleteSetlistFromSupabase(id: string): Promise<boolean> {
-  if (!supabase) return false;
   try {
     const { error } = await supabase
       .from('setlists')
       .delete()
       .eq('id', id);
-    
+
     if (error) {
-      console.error('Supabase deleteSetlistFromSupabase error:', error);
+      console.error('Erro ao deletar setlist:', error);
       return false;
     }
+
     return true;
   } catch (err) {
-    console.error('Supabase exception deleting setlist:', err);
+    console.error('Exception deleting setlist:', err);
     return false;
   }
 }
